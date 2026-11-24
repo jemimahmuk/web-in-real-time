@@ -1,0 +1,127 @@
+:root {
+  --hue: 200;            /* set from temperature in script.js */
+  --wind-duration: 8s;   /* set from wind speed in script.js */
+  --ink: #f5f7fa;
+  --muted: #c7d0dc;
+  --card-bg: rgba(255, 255, 255, 0.12);
+  --focus: #ffd166;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--ink);
+  background: linear-gradient(hsl(var(--hue) 60% 24%), hsl(var(--hue) 55% 10%));
+  transition: background 1.2s ease;
+}
+
+body.night { filter: brightness(0.8); }
+
+.site-header, .controls, .site-footer { padding: 1rem clamp(1rem, 4vw, 3rem); }
+.site-header h1 { margin: 0; font-size: clamp(1.6rem, 4vw, 2.6rem); }
+.intro { margin: 0.4rem 0 0; color: var(--muted); max-width: 60ch; }
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.city-buttons, .action-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+button {
+  font: inherit;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+button:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-1px); }
+button[aria-pressed="true"] { background: var(--ink); color: #111; }
+button:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+.stage {
+  position: relative;
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 2rem clamp(1rem, 4vw, 3rem);
+  overflow: hidden;
+}
+
+/* Wind lines: their drift speed is set by the live wind speed. */
+.wind {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.wind span {
+  position: absolute;
+  height: 2px;
+  width: 160px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  animation: drift var(--wind-duration) linear infinite;
+}
+.wind span:nth-child(1) { top: 18%; animation-delay: 0s; }
+.wind span:nth-child(2) { top: 36%; animation-delay: -2s; }
+.wind span:nth-child(3) { top: 58%; animation-delay: -4s; }
+.wind span:nth-child(4) { top: 75%; animation-delay: -1s; }
+.wind span:nth-child(5) { top: 88%; animation-delay: -3s; }
+
+@keyframes drift {
+  from { transform: translateX(-200px); }
+  to   { transform: translateX(calc(100vw + 200px)); }
+}
+
+.card {
+  position: relative;
+  width: min(560px, 100%);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border-radius: 24px;
+  background: var(--card-bg);
+  backdrop-filter: blur(8px);
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+.city-name { margin: 0; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.9rem; }
+.temperature { margin: 0.3rem 0 0; font-size: clamp(4rem, 14vw, 7rem); font-weight: 700; line-height: 1; }
+.condition { margin: 0.5rem 0 1.5rem; font-size: 1.3rem; }
+
+.details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin: 0;
+}
+.details div { background: rgba(0, 0, 0, 0.15); border-radius: 14px; padding: 0.75rem 0.5rem; }
+.details dt { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.details dd { margin: 0.25rem 0 0; font-weight: 600; }
+
+.status { min-height: 1.4em; margin: 1rem 0 0; color: var(--muted); font-size: 0.9rem; }
+.status.error { color: #ffb4a8; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; }
+.site-footer a { color: var(--ink); }
+
+/* Stacked layout on narrow screens */
+@media (max-width: 560px) {
+  .details { grid-template-columns: 1fr; }
+  .controls { flex-direction: column; align-items: stretch; }
+}
+
+/* Respect users who prefer less motion */
+@media (prefers-reduced-motion: reduce) {
+  .wind span { animation: none; opacity: 0.25; }
+  body, button { transition: none; }
+}
